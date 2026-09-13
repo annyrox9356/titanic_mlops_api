@@ -14,6 +14,7 @@ class DataProcessor:
     def loader(self,filename:str):
         cols_to_drop=['PassengerId','Name','Ticket','Cabin']
         data=pd.read_csv(filename)
+        data = data.dropna(subset=['Embarked']).reset_index(drop=True)
         self.X=data.drop(["Survived"] + cols_to_drop, axis=1)
         self.y=data["Survived"]
         
