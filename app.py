@@ -4,7 +4,7 @@ import pickle
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Literal
 import pandas as pd
-from transforming_inputs import TransformInputs
+from src.transforming_inputs import TransformInputs
 
 app=FastAPI()
 
@@ -57,7 +57,7 @@ def predict_survival(data:TitanicInput):
                "passenger Age":data.Age,
                "Ticket Fare":data.Fare,
                "Gender":data.Sex,
-               "End result(survived or not)":final_output
+               "End result(survived or not)": "Survived" if final_output==1 else "Not survived"
           }      
      except Exception as err_msg:
           raise HTTPException(status_code=400, detail=f"during prediction error that came:{str(err_msg)}")
