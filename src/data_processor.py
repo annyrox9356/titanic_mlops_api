@@ -24,20 +24,20 @@ class DataProcessor:
         self.X.dropna(subset=['Embarked'], inplace=True)       
 
         #filling age values with median
-        age_imputer=SimpleImputer(strategy='median')
-        self.X[['Age']]=age_imputer.fit_transform(self.X[['Age']])
+        self.age_imputer=SimpleImputer(strategy='median')
+        self.X[['Age']]=self.age_imputer.fit_transform(self.X[['Age']])
 
         #Charecter Encoding
         cat_cols = ['Sex', 'Embarked']
-        encoder = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
+        self.encoder = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
 
-        encoded_cats = encoder.fit_transform(self.X[cat_cols])
+        encoded_cats = self.encoder.fit_transform(self.X[cat_cols])
 
 
         # Convert the encoded array into a DataFrame
         encoded_df = pd.DataFrame(
                                     encoded_cats,
-                                    columns=encoder.get_feature_names_out(cat_cols)
+                                    columns=self.encoder.get_feature_names_out(cat_cols)
                                 )
         # Drop the original columns
         self.X = self.X.drop(columns=cat_cols).reset_index(drop=True)
@@ -49,8 +49,8 @@ class DataProcessor:
 
         #Feature Scaling
         cols_to_feature=['Age','Fare']
-        ss=StandardScaler()
-        self.X[cols_to_feature]=ss.fit_transform(self.X[cols_to_feature])
+        self.ss=StandardScaler()
+        self.X[cols_to_feature]=self.ss.fit_transform(self.X[cols_to_feature])
         print(self.X.head())
 
         #Training model on XGBoost 

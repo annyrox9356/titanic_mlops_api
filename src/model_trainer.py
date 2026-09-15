@@ -1,7 +1,10 @@
 from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score,confusion_matrix
 import pickle
+from data_processor import DataProcessor
 
+
+processor=DataProcessor()
 
 class ModelTrainer:
 
@@ -22,6 +25,12 @@ class ModelTrainer:
 
         def pickling(self):
                with open(r"models\model.pkl","wb")as file:
-                       pickle.dump(self.xgb_model,file)
+                       artifacts = {
+                        "model": self.xgb_model,
+                        "age_imputer": processor.age_imputer,
+                        "encoder": processor.encoder,
+                        "scaler": processor.ss
+                        }
+                       pickle.dump(artifacts,file)
                        print("Pickle file created Succesfully!")       
   
