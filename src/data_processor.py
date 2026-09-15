@@ -19,7 +19,7 @@ class DataProcessor:
         self.y=data["Survived"]
         
 
-    def processor(self):
+    def process(self):
         # droping blank row in embarked
         self.X.dropna(subset=['Embarked'], inplace=True)       
 

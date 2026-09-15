@@ -4,9 +4,10 @@ import pickle
 from data_processor import DataProcessor
 
 
-processor=DataProcessor()
-
 class ModelTrainer:
+        def __init__(self,trained_processor):
+                self.processor=trained_processor
+                
 
         def model_training(self,X_train,X_test,y_train,y_test):
 
@@ -27,9 +28,9 @@ class ModelTrainer:
                with open(r"models\model.pkl","wb")as file:
                        artifacts = {
                         "model": self.xgb_model,
-                        "age_imputer": processor.age_imputer,
-                        "encoder": processor.encoder,
-                        "scaler": processor.ss
+                        "age_imputer": self.processor.age_imputer,
+                        "encoder": self.processor.encoder,
+                        "scaler": self.processor.ss
                         }
                        pickle.dump(artifacts,file)
                        print("Pickle file created Succesfully!")       
