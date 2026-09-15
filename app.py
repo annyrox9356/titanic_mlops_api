@@ -4,6 +4,7 @@ import pickle
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Literal
 import pandas as pd
+from transforming_inputs import TransformInputs
 
 app=FastAPI()
 
@@ -20,13 +21,12 @@ try:
         artifacts = pickle.load(file)
 
     model = artifacts["model"]
-    age_imputer = artifacts["age_imputer"]
-    encoder = artifacts["encoder"]
-    scaler = artifacts["scaler"]
+    transformer=TransformInputs(age_imputer = artifacts["age_imputer"],encoder = artifacts["encoder"],scaler = artifacts["scaler"])
 
 except FileNotFoundError:
     model=None
     print("warning! model.pkl file not found")
+
 
 class TitanicInput(BaseModel):
         Pclass: Literal[1, 2, 3] = Field(..., description="Ticket class (1 = 1st, 2 = 2nd, 3 = 3rd)")
@@ -44,47 +44,11 @@ def predict_survival(data:TitanicInput):
 
      try:
           # 1. Raw incoming data
-          input_df = pd.DataFrame([{
-            "Pclass": data.Pclass,
-            "Age": data.Age,
-            "SibSp": data.SibSp,
-            "Parch": data.Parch,
-            "Fare": data.Fare,
-            "Sex": data.Sex,
-            "Embarked": data.Embarked
-            }])
-          # 2. Age imputation
-          input_df[['Age']] = age_imputer.transform(
-                input_df[['Age']]
-            )
+          input_df = pd.DataFrame([data.model_dump()])
 
-            # 3. One Hot Encoding
-          cat_cols = ['Sex', 'Embarked']
+          trans_input=transformer.transform(input_df)
 
-          encoded_cats = encoder.transform(
-                input_df[cat_cols]
-            )
-
-          encoded_df = pd.DataFrame(
-                encoded_cats,
-                columns=encoder.get_feature_names_out(cat_cols)
-            )
-
-            # 4. Remove original categorical columns
-          input_df = input_df.drop(columns=cat_cols)
-
-            # 5. Add encoded columns
-          input_df = pd.concat(
-                [input_df.reset_index(drop=True), encoded_df],
-                axis=1
-            )
-
-            # 6. Scaling
-          input_df[['Age', 'Fare']] = scaler.transform(
-                input_df[['Age', 'Fare']]
-            )
-
-          prediction=model.predict(input_df)
+          prediction=model.predict(trans_input)
 
           final_output=int(prediction[0])
 
