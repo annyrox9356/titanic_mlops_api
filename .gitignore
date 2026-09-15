@@ -1,0 +1,7 @@
+# Python Cache
+__pycache__/
+*.pyc
+
+# Virtual Environments (Agar future me banayenge)
+venv/
+env/
